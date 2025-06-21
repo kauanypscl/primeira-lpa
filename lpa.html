@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-Br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Vendas - Exercícios LPA</title>
+  <link rel="stylesheet" href="lpa.css" />
+</head>
+<body>
+  <header>
+    <h1>Sistema de Vendas - Kauany Priscila Luciano</h1>
+  </header>
+  <nav>
+    <button class="tab active" onclick="showTab(0)">cáuculo de desconto</button>
+    <button class="tab" onclick="showTab(1)">Pedido de Açaí / Cupuaçu</button>
+    <button class="tab" onclick="showTab(2)">Serviço de Copiadora</button>
+    <button class="tab" onclick="showTab(3)">Cadastro de Livros</button>
+  </nav>
+  <main>
+    <section class="active" id="q1">
+      <h2> Cálculo de Desconto</h2>
+      <label>Valor unitário: <input type="number" id="valorUnitario" /></label>
+      <label>Quantidade: <input type="number" id="quantidade" /></label>
+      <button onclick="calcularDesconto()">Calcular</button>
+      <div class="result" id="resQ1"></div>
+    </section>
+
+    <section id="q2">
+      <h2> Pedido de Açaí / Cupuaçu</h2>
+      <label>Sabor:
+        <select id="sabor">
+          <option value="">Selecione</option>
+          <option value="CP">Cupuaçu</option>
+          <option value="AC">Açaí</option>
+        </select>
+      </label>
+      <label>Tamanho:
+        <select id="tamanho">
+          <option value="">Selecione</option>
+          <option value="P">P</option>
+          <option value="M">M</option>
+          <option value="G">G</option>
+        </select>
+      </label>
+      <button onclick="adicionarPedidoQ2()">Adicionar ao Pedido</button>
+      <div class="result" id="resQ2"></div>
+    </section>
+
+    <section id="q3">
+      <h2> Serviço de Copiadora</h2>
+      <label>Tipo de serviço:
+        <select id="tipoServico">
+          <option value="DIG">Digitalização</option>
+          <option value="ICO">Impressão Colorida</option>
+          <option value="IPB">Impressão PB</option>
+          <option value="FOT">Fotocópia</option>
+        </select>
+      </label>
+      <label>Nº de páginas: <input type="number" id="paginas" /></label>
+      <label>Serviço extra:
+        <select id="extra">
+          <option value="0">Nada</option>
+          <option value="1">Encadern. Simples (15)</option>
+          <option value="2">Encadern. Capa Dura (40)</option>
+        </select>
+      </label>
+      <button onclick="calcularQ3()">Calcular</button>
+      <div class="result" id="resQ3"></div>
+    </section>
+
+    <section id="q4">
+      <h2> Cadastro de Livros</h2>
+      <label>Nome do livro: <input id="nomeLivro" /></label>
+      <label>Autor: <input id="autorLivro" /></label>
+      <label>Editora: <input id="editoraLivro" /></label>
+      <button onclick="cadastrarLivro()">Cadastrar</button>
+      <div class="result" id="resQ4"></div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const sections = document.querySelectorAll('main section');
+    function showTab(i) {
+      tabs.forEach(btn => btn.classList.remove('active'));
+      sections.forEach(sec => sec.classList.remove('active'));
+      tabs[i].classList.add('active');
+      sections[i].classList.add('active');
+    }
+
+    function calcularDesconto() {
+      const v = parseFloat(document.getElementById("valorUnitario").value);
+      const q = parseInt(document.getElementById("quantidade").value);
+      if (isNaN(v) || isNaN(q)) return;
+      const total = v * q;
+      let desconto = 0;
+      if (total >= 10000) desconto = 0.11;
+      else if (total >= 6000) desconto = 0.07;
+      else if (total >= 2500) desconto = 0.04;
+      const comDesc = total * (1 - desconto);
+      document.getElementById("resQ1").innerText = `Total: R$ ${total.toFixed(2)}\nCom desconto: R$ ${comDesc.toFixed(2)}`;
+    }
+
+    const pedidosQ2 = [];
+    function adicionarPedidoQ2() {
+      const s = document.getElementById("sabor").value;
+      const t = document.getElementById("tamanho").value;
+      if (!s || !t) return;
+      const precos = {
+        CP: { P: 9, M: 14, G: 18 },
+        AC: { P: 11, M: 16, G: 20 }
+      };
+      const preco = precos[s][t];
+      pedidosQ2.push(preco);
+      const total = pedidosQ2.reduce((a, b) => a + b, 0);
+      document.getElementById("resQ2").innerText = `Itens: ${pedidosQ2.length} - Total: R$ ${total.toFixed(2)}`;
+    }
+
+    function calcularQ3() {
+      const tipo = document.getElementById("tipoServico").value;
+      let paginas = parseInt(document.getElementById("paginas").value);
+      const extra = document.getElementById("extra").value;
+      const precos = { DIG: 1.1, ICO: 1.0, IPB: 0.4, FOT: 0.2 };
+      if (isNaN(paginas) || paginas >= 20000) return;
+      let mult = 1;
+      if (paginas >= 2000) mult = 0.75;
+      else if (paginas >= 200) mult = 0.80;
+      else if (paginas >= 20) mult = 0.85;
+      const valorExtra = extra === "1" ? 15 : extra === "2" ? 40 : 0;
+      const total = (precos[tipo] * paginas * mult) + valorExtra;
+      document.getElementById("resQ3").innerText = `Total a pagar: R$ ${total.toFixed(2)}`;
+    }
+
+    let livros = [];
+    let id = 1;
+    function cadastrarLivro() {
+      const nome = document.getElementById("nomeLivro").value;
+      const autor = document.getElementById("autorLivro").value;
+      const editora = document.getElementById("editoraLivro").value;
+      livros.push({ id: id++, nome, autor, editora });
+      document.getElementById("resQ4").innerText = livros.map(l => `${l.id} - ${l.nome} (${l.autor})`).join("\n");
+    }
+  </script>
+</body>
+</html>
